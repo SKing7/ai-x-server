@@ -1,16 +1,16 @@
 
 import { Controller, Get, Header, Res } from '@nestjs/common';
-import generatorWorkPort from './services/assistant.service';
-import generatorWorkPortStream from './services/assistant_stream.service';
+import { AssistantService } from './assistant.service';
 
 @Controller('ods')
 export class OdsController {
+  constructor(private readonly assistantService: AssistantService) { }
 
   @Get('work-report')
   @Header('Content-Type', 'text/markdown')
   async getDoc() {
 
-    const docs = await generatorWorkPort();
+    const docs = await this.assistantService.run();
     return docs;
   }
 
@@ -19,7 +19,7 @@ export class OdsController {
   @Header('Transfer-Encoding', 'chunked')
   async getDocStream(@Res() res) {
 
-    const docs = await generatorWorkPortStream(res);
+    const docs = await this.assistantService.runStream(res);
     return docs;
   }
 }
