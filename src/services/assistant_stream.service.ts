@@ -23,7 +23,7 @@ async function main(res) {
   const run = openai.beta.threads.runs.stream(thread.id, {
     assistant_id: assistant.id
   })
-    .on('textCreated', (text) => res.write('\nassistant > '))
+    .on('textCreated', (text) => res.write('\nassistant > \r\n'))
     .on('textDelta', (textDelta, snapshot) => res.write(textDelta.value))
     .on('end', () => {
       res.end();
