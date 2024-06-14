@@ -18,8 +18,13 @@ export class OdsController {
   @Header('Content-Type', 'text/markdown')
   @Header('Transfer-Encoding', 'chunked')
   async getDocStream(@Res() res) {
-
     const docs = await this.assistantService.runStream(res);
     return docs;
+  }
+
+  @Get('update')
+  async updateAssistant() {
+    const docs = await this.assistantService.updateFileInAssitant();
+    return JSON.stringify(docs);
   }
 }

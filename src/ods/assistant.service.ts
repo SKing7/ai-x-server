@@ -1,13 +1,14 @@
 import { Injectable, Res } from '@nestjs/common';
-import { createAssistantIfNeeded, openai } from 'src/libs/openai';
+import { createAssistantIfNeeded, openai, uploadDocs } from 'src/libs/openai';
 
+const vectorStoreIds = ['vs_T5yfV3mlwQBuRdDXvJN4Yjco'];
 
 @Injectable()
 export class AssistantService {
 
   async run() {
 
-    const assistant = await createAssistantIfNeeded();
+    const assistant = await createAssistantIfNeeded(vectorStoreIds);
 
     const thread = await openai.beta.threads.create({});
 
@@ -15,9 +16,7 @@ export class AssistantService {
 
     const message = await openai.beta.threads.messages.create(thread.id, {
       role: 'user',
-      content:
-        `给你提供了2023年山东省政府工作报告的pdf，根据2023年的，帮我写一个2024年的山东省的政府工作报告公文;
-      并且要突出提到习近平主席，向党看齐
+      content: `给你提供的pdf文件，结合最近的形势，帮我写一个新的
       `,
     });
 
@@ -64,8 +63,7 @@ export class AssistantService {
   async runStream(@Res() res) {
 
 
-    console.log('--------2-----------------', res);
-    const assistant = await createAssistantIfNeeded();
+    const assistant = await createAssistantIfNeeded(vectorStoreIds);
 
     const thread = await openai.beta.threads.create({});
 
@@ -73,10 +71,7 @@ export class AssistantService {
 
     const message = await openai.beta.threads.messages.create(thread.id, {
       role: 'user',
-      content:
-        `给你提供了2023年山东省政府工作报告的pdf，根据2023年的，帮我写一个2024年的山东省的政府工作报告公文;
-      并且要突出提到习近平主席，向党看齐
-      `,
+      content: `给你提供的pdf文件中的标题，帮我写一个新的稿子; `
     });
 
     console.log('Adding message to thread: ', message);
@@ -90,5 +85,10 @@ export class AssistantService {
       .on('end', () => {
         res.end();
       });
+  }
+
+  async updateFileInAssitant() {
+    const storeObj = await uploadDocs(['dang-1.pdf', 'dang-2.pdf', 'dang-3.pdf']);
+    return storeObj;
   }
 }
